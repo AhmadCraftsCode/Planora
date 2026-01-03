@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
-import { FaPlus, FaTrash, FaMapMarkerAlt, FaUsers, FaCalendarAlt, FaExclamationCircle, FaBox } from "react-icons/fa";
+import { FaPlus, FaTrash, FaMapMarkerAlt, FaUsers, FaCalendarAlt, FaExclamationCircle, FaBox, FaHotel, FaCar, FaUser } from "react-icons/fa";
 
 const ManagePackages = () => {
   const [packages, setPackages] = useState([]);
@@ -16,7 +16,6 @@ const ManagePackages = () => {
     hotelId: "", guideId: "", driverId: "",
   });
 
-  // Error State
   const [errors, setErrors] = useState({});
 
   useEffect(() => {
@@ -25,85 +24,74 @@ const ManagePackages = () => {
   }, []);
 
   const fetchPackages = async () => {
-    const token = sessionStorage.getItem("token");
-    const res = await axios.get("http://localhost:5000/api/packages/all", { headers: { Authorization: token } });
-    setPackages(res.data);
+    try {
+      const token = sessionStorage.getItem("token");
+      // Using relative path for Vercel/Localhost compatibility
+      const res = await axios.get("/api/packages/all", { headers: { Authorization: token } });
+      setPackages(res.data);
+    } catch (err) {
+      console.error("Error fetching packages", err);
+    }
   };
 
   const fetchResources = async () => {
-    const token = sessionStorage.getItem("token");
-    const res = await axios.get("http://localhost:5000/api/packages/resources", { headers: { Authorization: token } });
-    setResources(res.data);
+    try {
+      const token = sessionStorage.getItem("token");
+      // Using relative path
+      const res = await axios.get("/api/packages/resources", { headers: { Authorization: token } });
+      setResources(res.data);
+    } catch (err) {
+      console.error("Error fetching resources", err);
+    }
   };
 
   // --- VALIDATION LOGIC ---
   const validateField = (name, value) => {
     let error = "";
-
     switch (name) {
       case "title":
-        // Allow alphanumeric, spaces, hyphens
-        if (!/^[a-zA-Z0-9\s\-]+$/.test(value)) error = "Title can only contain text and numbers.";
-        if (value.length < 5) error = "Title must be at least 5 chars.";
+        if (!/^[a-zA-Z0-9\s\-]+$/.test(value)) error = "Text and numbers only.";
+        if (value.length < 5) error = "Min 5 chars.";
         break;
-
       case "destination":
-        if (!/^[a-zA-Z\s]+$/.test(value)) error = "Destination must be text only.";
+        if (!/^[a-zA-Z\s]+$/.test(value)) error = "Text only.";
         break;
-
-      case "duration":
-      case "seats":
-      case "price":
-        if (value <= 0) error = "Must be a positive number.";
+      case "duration": case "seats": case "price":
+        if (value <= 0) error = "Must be positive.";
         break;
-
       case "startDate":
         const selectedDate = new Date(value);
         const today = new Date();
-        today.setHours(0, 0, 0, 0); // Ignore time part
-        if (selectedDate < today) error = "Date cannot be in the past.";
+        today.setHours(0, 0, 0, 0);
+        if (selectedDate < today) error = "Cannot be in the past.";
         break;
-
       case "description":
-        if (value.length < 20) error = "Description is too short (min 20 chars).";
+        if (value.length < 10) error = "Too short.";
         break;
-
-      case "images":
-        // Check if it looks like a URL (basic check)
-        if (!value.includes("http")) error = "Must be a valid image URL.";
-        break;
-
-      default:
-        break;
+      default: break;
     }
     return error;
   };
 
   const handleChange = (name, value) => {
-    // 1. Update Value
     setFormData(prev => ({ ...prev, [name]: value }));
-    
-    // 2. Validate
     const error = validateField(name, value);
     setErrors(prev => ({ ...prev, [name]: error }));
   };
 
   const handleCreate = async (e) => {
     e.preventDefault();
-    
-    // Final Check
     const hasErrors = Object.values(errors).some(x => x !== "");
-    const hasEmpty = Object.values(formData).some(x => x === "" && x !== formData.images); // Images allows some flexibility but mostly required
+    const hasEmpty = Object.values(formData).some(x => x === "" && x !== formData.images && x !== formData.hotelId && x !== formData.driverId && x !== formData.guideId);
     
     if (hasErrors || hasEmpty) {
-      alert("Please fix errors and fill all fields.");
+      alert("Please fix errors and fill required fields.");
       return;
     }
 
     setLoading(true);
     try {
       const token = sessionStorage.getItem("token");
-      
       const itinerary = Array.from({ length: formData.duration }, (_, i) => ({
         day: i + 1, 
         activity: `Day ${i+1}: Explore ${formData.destination}` 
@@ -115,7 +103,7 @@ const ManagePackages = () => {
         itinerary
       };
 
-      await axios.post("http://localhost:5000/api/packages/create", payload, { headers: { Authorization: token } });
+      await axios.post("/api/packages/create", payload, { headers: { Authorization: token } });
       fetchPackages();
       setIsModalOpen(false);
       setFormData({
@@ -132,9 +120,9 @@ const ManagePackages = () => {
   };
 
   const handleDelete = async (id) => {
-    if(!window.confirm("Delete this package? This cannot be undone.")) return;
+    if(!window.confirm("Delete this package?")) return;
     const token = sessionStorage.getItem("token");
-    await axios.delete(`http://localhost:5000/api/packages/${id}`, { headers: { Authorization: token } });
+    await axios.delete(`/api/packages/${id}`, { headers: { Authorization: token } });
     fetchPackages();
   };
 
@@ -143,9 +131,6 @@ const ManagePackages = () => {
     today.setHours(0,0,0,0);
     return new Date(dateString) < today;
   };
-
-  // Check if form is valid for button disable state
-  const isFormInvalid = Object.values(errors).some(x => x) || Object.values(formData).some(x => x === "");
 
   return (
     <div>
@@ -167,19 +152,11 @@ const ManagePackages = () => {
             <div key={pkg._id} className={`bg-white rounded-xl shadow-sm border overflow-hidden hover:shadow-md transition ${expired ? 'border-red-200 opacity-70' : 'border-gray-200'}`}>
               <div className="h-48 bg-gray-200 relative">
                  <img src={pkg.images[0] || "https://via.placeholder.com/300"} className="w-full h-full object-cover" />
-                 
-                 <div className="absolute top-2 left-2 bg-black/70 backdrop-blur px-2 py-1 rounded text-xs font-bold text-white">
-                    {pkg.duration} Days
-                 </div>
-
+                 <div className="absolute top-2 left-2 bg-black/70 backdrop-blur px-2 py-1 rounded text-xs font-bold text-white">{pkg.duration} Days</div>
                  {expired ? (
-                   <div className="absolute top-2 right-2 bg-red-600 text-white px-3 py-1 rounded text-xs font-bold shadow-sm flex items-center gap-1">
-                     <FaExclamationCircle /> EXPIRED
-                   </div>
+                   <div className="absolute top-2 right-2 bg-red-600 text-white px-3 py-1 rounded text-xs font-bold shadow-sm flex items-center gap-1"><FaExclamationCircle /> EXPIRED</div>
                  ) : (
-                   <div className="absolute top-2 right-2 bg-green-500 text-white px-3 py-1 rounded text-xs font-bold shadow-sm">
-                     ACTIVE
-                   </div>
+                   <div className="absolute top-2 right-2 bg-green-500 text-white px-3 py-1 rounded text-xs font-bold shadow-sm">ACTIVE</div>
                  )}
               </div>
 
@@ -198,9 +175,9 @@ const ManagePackages = () => {
                  </div>
                  
                  <div className="bg-indigo-50 p-3 rounded-lg space-y-1 text-xs text-gray-600 mb-4 border border-indigo-100">
-                    <p><span className="font-bold text-indigo-800">Hotel:</span> {pkg.hotelId?.name || "N/A"}</p>
-                    <p><span className="font-bold text-indigo-800">Guide:</span> {pkg.guideId?.fullName || "N/A"}</p>
-                    <p><span className="font-bold text-indigo-800">Driver:</span> {pkg.driverId?.fullName || "N/A"}</p>
+                    <p><span className="font-bold text-indigo-800">Hotel:</span> {pkg.hotelId?.name || "None"}</p>
+                    <p><span className="font-bold text-indigo-800">Guide:</span> {pkg.guideId?.fullName || "None"}</p>
+                    <p><span className="font-bold text-indigo-800">Driver:</span> {pkg.driverId?.fullName || "None"}</p>
                  </div>
 
                  <button onClick={() => handleDelete(pkg._id)} className="w-full py-2 border border-red-200 text-red-600 rounded-lg text-sm hover:bg-red-50 flex items-center justify-center gap-2 transition">
@@ -224,20 +201,13 @@ const ManagePackages = () => {
             <div className="p-8 overflow-y-auto no-scrollbar">
               <form onSubmit={handleCreate} className="space-y-6">
                 
-                {/* Basic Info */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                    <Input label="Package Title" placeholder="e.g. 5 Days Trip to Naran" value={formData.title} onChange={v => handleChange("title", v)} error={errors.title} />
                    <Input label="Destination" placeholder="e.g. Naran Kaghan" value={formData.destination} onChange={v => handleChange("destination", v)} error={errors.destination} />
                    
                    <div>
                      <label className="block text-xs font-bold text-indigo-800 uppercase mb-1">Start Date</label>
-                     <input 
-                        type="date" 
-                        required
-                        className={`w-full p-3 bg-white rounded-xl text-sm border outline-none ${errors.startDate ? "border-red-500" : "border-indigo-200 focus:border-indigo-500"}`}
-                        value={formData.startDate} 
-                        onChange={e => handleChange("startDate", e.target.value)} 
-                     />
+                     <input type="date" required className={`w-full p-3 bg-white rounded-xl text-sm border outline-none ${errors.startDate ? "border-red-500" : "border-indigo-200 focus:border-indigo-500"}`} value={formData.startDate} onChange={e => handleChange("startDate", e.target.value)} />
                      {errors.startDate && <p className="text-[10px] text-red-600 mt-1">{errors.startDate}</p>}
                    </div>
 
@@ -248,38 +218,42 @@ const ManagePackages = () => {
                 
                 <Input label="Image URL (Comma separated)" placeholder="https://img1.jpg, https://img2.jpg" value={formData.images} onChange={v => handleChange("images", v)} error={errors.images} />
 
-                {/* Resource Selection */}
+                {/* --- RESOURCE SELECTION (With No-Data Feedback) --- */}
                 <div className="bg-gray-50 p-6 rounded-xl border border-gray-200 grid grid-cols-1 md:grid-cols-3 gap-4">
-                   <Select label="Assign Hotel" value={formData.hotelId} onChange={v => handleChange("hotelId", v)}>
+                   
+                   <Select label="Assign Hotel" value={formData.hotelId} onChange={v => handleChange("hotelId", v)} icon={FaHotel}>
                       <option value="">Select Hotel</option>
-                      {resources.hotels.map(h => <option key={h._id} value={h._id}>{h.name} ({h.city})</option>)}
+                      {resources.hotels.length > 0 
+                        ? resources.hotels.map(h => <option key={h._id} value={h._id}>{h.name} ({h.city})</option>)
+                        : <option disabled>No Hotels Created Yet</option>
+                      }
                    </Select>
-                   <Select label="Assign Guide" value={formData.guideId} onChange={v => handleChange("guideId", v)}>
+
+                   <Select label="Assign Guide" value={formData.guideId} onChange={v => handleChange("guideId", v)} icon={FaUser}>
                       <option value="">Select Tour Guide</option>
-                      {resources.guides.map(g => <option key={g._id} value={g._id}>{g.fullName} ({g.language})</option>)}
+                      {resources.guides.length > 0 
+                        ? resources.guides.map(g => <option key={g._id} value={g._id}>{g.fullName} ({g.language})</option>)
+                        : <option disabled>No Approved Guides</option>
+                      }
                    </Select>
-                   <Select label="Assign Driver" value={formData.driverId} onChange={v => handleChange("driverId", v)}>
+
+                   <Select label="Assign Driver" value={formData.driverId} onChange={v => handleChange("driverId", v)} icon={FaCar}>
                       <option value="">Select Driver</option>
-                      {resources.drivers.map(d => <option key={d._id} value={d._id}>{d.fullName} ({d.licenseNumber})</option>)}
+                      {resources.drivers.length > 0 
+                        ? resources.drivers.map(d => <option key={d._id} value={d._id}>{d.fullName} ({d.licenseNumber})</option>)
+                        : <option disabled>No Approved Drivers</option>
+                      }
                    </Select>
+
                 </div>
 
                 <div>
                    <label className="block text-xs font-bold text-indigo-800 uppercase mb-1">Description</label>
-                   <textarea 
-                    className={`w-full p-3 bg-white border rounded-xl text-sm outline-none ${errors.description ? "border-red-500" : "border-indigo-200 focus:border-indigo-500"}`}
-                    rows="3" 
-                    value={formData.description} 
-                    onChange={e => handleChange("description", e.target.value)}
-                   ></textarea>
+                   <textarea className={`w-full p-3 bg-white border rounded-xl text-sm outline-none ${errors.description ? "border-red-500" : "border-indigo-200 focus:border-indigo-500"}`} rows="3" value={formData.description} onChange={e => handleChange("description", e.target.value)}></textarea>
                    {errors.description && <p className="text-[10px] text-red-600 mt-1">{errors.description}</p>}
                 </div>
 
-                <button 
-                  type="submit" 
-                  disabled={loading || isFormInvalid} // DISABLED if Invalid
-                  className="w-full bg-indigo-600 text-white py-3.5 rounded-xl font-bold shadow-lg hover:bg-indigo-700 transition disabled:opacity-50 disabled:cursor-not-allowed"
-                >
+                <button type="submit" disabled={loading} className="w-full bg-indigo-600 text-white py-3.5 rounded-xl font-bold shadow-lg hover:bg-indigo-700 transition disabled:opacity-50">
                   {loading ? "Creating..." : "Publish Package"}
                 </button>
               </form>
@@ -291,27 +265,20 @@ const ManagePackages = () => {
   );
 };
 
-// Updated Reusable Components with Error Styling
 const Input = ({ label, value, onChange, type="text", placeholder, error }) => (
   <div>
     <label className="block text-xs font-bold text-indigo-800 uppercase mb-1">{label}</label>
-    <input 
-      type={type} 
-      className={`w-full p-3 bg-white rounded-xl text-sm border outline-none transition
-        ${error ? "border-red-500 bg-red-50 text-red-900" : "border-indigo-200 focus:border-indigo-500"}`}
-      value={value} 
-      onChange={e => onChange(e.target.value)} 
-      placeholder={placeholder} 
-      required 
-    />
+    <input type={type} className={`w-full p-3 bg-white rounded-xl text-sm border outline-none transition ${error ? "border-red-500 bg-red-50 text-red-900" : "border-indigo-200 focus:border-indigo-500"}`} value={value} onChange={e => onChange(e.target.value)} placeholder={placeholder} required />
     {error && <p className="text-[10px] text-red-600 mt-1 font-semibold">{error}</p>}
   </div>
 );
 
-const Select = ({ label, value, onChange, children }) => (
+const Select = ({ label, value, onChange, children, icon: Icon }) => (
     <div>
-      <label className="block text-xs font-bold text-gray-500 uppercase mb-1">{label}</label>
-      <select className="w-full p-3 bg-white rounded-xl text-sm border border-gray-300 focus:border-indigo-500 outline-none" value={value} onChange={e => onChange(e.target.value)} required>
+      <label className="block text-xs font-bold text-gray-500 uppercase mb-1 flex items-center gap-1">
+        {Icon && <Icon className="text-indigo-500"/>} {label}
+      </label>
+      <select className="w-full p-3 bg-white rounded-xl text-sm border border-gray-300 focus:border-indigo-500 outline-none cursor-pointer" value={value} onChange={e => onChange(e.target.value)}>
         {children}
       </select>
     </div>
