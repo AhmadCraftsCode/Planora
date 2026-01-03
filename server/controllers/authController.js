@@ -88,3 +88,25 @@ exports.loginUser = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+
+// Check if User Exists (Runtime Validation)
+exports.checkUserExists = async (req, res) => {
+  try {
+    const { field, value } = req.body;
+    
+    // Construct query dynamically (email: "..." or cnic: "...")
+    const query = {};
+    query[field] = value;
+
+    const user = await User.findOne(query);
+    
+    if (user) {
+      return res.status(200).json({ exists: true, message: `${field === 'email' ? 'Email' : 'CNIC'} is already registered.` });
+    }
+    
+    return res.status(200).json({ exists: false });
+
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
