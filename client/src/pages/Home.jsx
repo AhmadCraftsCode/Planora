@@ -173,7 +173,7 @@ const Home = () => {
           <div className="flex-1 relative">
             <div className="absolute -inset-4 bg-blue-100 rounded-full blur-3xl opacity-50 z-0"></div>
             <img
-              src="https://images.unsplash.com/photo-1627896157732-ca03810486c8?q=80&w=1170&auto=format&fit=crop"
+              src="https://images.unsplash.com/photo-1602147557719-1d65f9e58a24?q=80&w=1170&auto=format&fit=crop"
               alt="Pakistan Travel"
               className="relative z-10 rounded-2xl shadow-2xl rotate-2 hover:rotate-0 transition duration-500"
             />
@@ -244,8 +244,7 @@ const Home = () => {
       <section id="drivers" className="py-20 bg-white">
         <div className="max-w-7xl mx-auto px-6">
           <SectionHeader title="Reliable Drivers" subtitle="Comfortable rides for city to city travel" />
-
-          <div className="flex overflow-x-auto gap-6 mt-10 pb-8 no-scrollbar snap-x snap-mandatory px-4">
+          <div className="flex overflow-x-auto gap-6 mt-10 pb-8 px-4 no-scrollbar snap-x snap-mandatory">
             {data.drivers.length > 0 ? data.drivers.map((driver) => (
               <div key={driver._id} className="min-w-[300px] shrink-0 snap-start">
                 <DriverCard 
@@ -254,6 +253,7 @@ const Home = () => {
                   city="Pakistan"
                   rate={driver.pricePerKm}
                   image={driver.profilePicture}
+                  gender={driver.gender} // <--- ADDED THIS LINE
                   onBook={() => handleBook(driver, "Driver")}
                 />
               </div>
@@ -273,9 +273,10 @@ const Home = () => {
                  <GuideCard 
                    name={guide.fullName}
                    language={guide.language}
-                   city={guide.address} 
-                   rate={guide.pricePerDay || 3000} 
+                   city={guide.address}
+                   rate={guide.pricePerDay || 3000}
                    image={guide.profilePicture}
+                   gender={guide.gender} // <--- ADDED THIS LINE
                    onBook={() => handleBook(guide, "Guide")}
                  />
                </div>
@@ -347,38 +348,64 @@ const HotelCard = ({ image, name, city, price, onBook }) => (
   </div>
 );
 
-const DriverCard = ({ name, car, city, rate, image, onBook }) => (
-  <div className="flex items-center gap-4 bg-slate-50 p-4 rounded-xl border border-gray-200 hover:border-orange-200 hover:bg-orange-50 transition cursor-pointer group h-full">
-    <div className="w-16 h-16 rounded-full bg-gray-300 overflow-hidden border border-gray-200 shrink-0">
-      <img src={image || "https://cdn-icons-png.flaticon.com/512/3135/3135715.png"} alt="Driver" className="w-full h-full object-cover" />
-    </div>
-    <div className="flex-1 min-w-0">
-      <h4 className="font-bold text-slate-800 truncate">{name}</h4>
-      <p className="text-xs text-gray-500 flex items-center gap-1 mt-1 truncate"><FaCar /> {car}</p>
-    </div>
-    <div className="text-right flex flex-col items-end shrink-0">
-      <p className="text-sm font-bold text-orange-600">PKR {rate}<span className="text-gray-400 font-normal text-[10px]">/km</span></p>
-      <button onClick={onBook} className="mt-1 text-[10px] bg-orange-600 text-white px-2 py-1 rounded font-bold opacity-0 group-hover:opacity-100 transition">Book</button>
-    </div>
-  </div>
-);
+const DriverCard = ({ name, car, city, rate, image, gender, onBook }) => {
+  // Logic: Use User's Image -> If empty, check Gender -> Default to Generic
+  let displayImage = image;
+  if (!displayImage) {
+    if (gender === "Female") {
+      displayImage = "https://cdn-icons-png.flaticon.com/512/1995/1995574.png"; // Girl Icon
+    } else {
+      displayImage = "https://cdn-icons-png.flaticon.com/512/1995/1995539.png"; // Boy Icon
+    }
+  }
 
-const GuideCard = ({ name, language, city, rate, image, onBook }) => (
-  <div className="flex items-center gap-4 bg-white p-4 rounded-xl border border-gray-200 hover:border-teal-200 hover:bg-teal-50 transition cursor-pointer h-full">
-    <div className="w-16 h-16 rounded-full bg-gray-300 overflow-hidden shrink-0"><img src={image || "https://cdn-icons-png.flaticon.com/512/1995/1995574.png"} alt="Guide" className="w-full h-full object-cover" /></div>
-    <div className="flex-1 min-w-0">
-      <h4 className="font-bold text-slate-800 truncate">{name}</h4>
-      <p className="text-xs text-gray-500 flex items-center gap-1 mt-1 truncate"><FaMapMarkerAlt /> {city}</p>
-      <div className="flex gap-1 mt-1 flex-wrap">
-        {language.split(',').map((lang, i) => <span key={i} className="text-[10px] bg-teal-100 text-teal-700 px-1.5 py-0.5 rounded">{lang.trim()}</span>)}
+  return (
+    <div className="flex items-center gap-4 bg-slate-50 p-4 rounded-xl border border-gray-200 hover:border-orange-200 hover:bg-orange-50 transition cursor-pointer group h-full">
+      <div className="w-16 h-16 rounded-full bg-gray-300 overflow-hidden border border-gray-200 shrink-0">
+        <img src={displayImage} alt="Driver" className="w-full h-full object-cover" />
+      </div>
+      <div className="flex-1 min-w-0">
+        <h4 className="font-bold text-slate-800 truncate">{name}</h4>
+        <p className="text-xs text-gray-500 flex items-center gap-1 mt-1 truncate"><FaCar /> {car}</p>
+      </div>
+      <div className="text-right flex flex-col items-end shrink-0">
+        <p className="text-sm font-bold text-orange-600">PKR {rate}<span className="text-gray-400 font-normal text-[10px]">/km</span></p>
+        <button onClick={onBook} className="mt-1 text-[10px] bg-orange-600 text-white px-2 py-1 rounded font-bold opacity-0 group-hover:opacity-100 transition">Book</button>
       </div>
     </div>
-    <div className="text-right flex flex-col items-end shrink-0">
-      <p className="text-sm font-bold text-teal-600">PKR {rate}</p>
-      <p className="text-[10px] text-gray-400">per day</p>
-      <button onClick={onBook} className="mt-1 text-[10px] bg-teal-600 text-white px-2 py-1 rounded font-bold opacity-0 group-hover:opacity-100 transition">Book</button>
+  );
+};
+
+const GuideCard = ({ name, language, city, rate, image, gender, onBook }) => {
+  // Logic: Use User's Image -> If empty, check Gender -> Default to Generic
+  let displayImage = image;
+  if (!displayImage) {
+    if (gender === "Female") {
+      displayImage = "https://cdn-icons-png.flaticon.com/512/1995/1995574.png"; // Girl Icon
+    } else {
+      displayImage = "https://cdn-icons-png.flaticon.com/512/1995/1995539.png"; // Boy Icon
+    }
+  }
+
+  return (
+    <div className="flex items-center gap-4 bg-white p-4 rounded-xl border border-gray-200 hover:border-teal-200 hover:bg-teal-50 transition cursor-pointer h-full group">
+      <div className="w-16 h-16 rounded-full bg-gray-300 overflow-hidden shrink-0 border border-gray-200">
+        <img src={displayImage} alt="Guide" className="w-full h-full object-cover" />
+      </div>
+      <div className="flex-1 min-w-0">
+        <h4 className="font-bold text-slate-800 truncate">{name}</h4>
+        <p className="text-xs text-gray-500 flex items-center gap-1 mt-1 truncate"><FaMapMarkerAlt /> {city}</p>
+        <div className="flex gap-1 mt-1 flex-wrap">
+          {language.split(',').map((lang, i) => <span key={i} className="text-[10px] bg-teal-100 text-teal-700 px-1.5 py-0.5 rounded">{lang.trim()}</span>)}
+        </div>
+      </div>
+      <div className="text-right flex flex-col items-end shrink-0">
+        <p className="text-sm font-bold text-teal-600">PKR {rate}</p>
+        <p className="text-[10px] text-gray-400">per day</p>
+        <button onClick={onBook} className="mt-1 text-[10px] bg-teal-600 text-white px-2 py-1 rounded font-bold opacity-0 group-hover:opacity-100 transition">Book</button>
+      </div>
     </div>
-  </div>
-);
+  );
+};
 
 export default Home;
