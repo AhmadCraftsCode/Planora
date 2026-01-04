@@ -3,22 +3,29 @@ const mongoose = require("mongoose");
 const BookingSchema = new mongoose.Schema({
   customerId: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
   
-  // What is being booked?
-  bookingType: { type: String, enum: ["Package", "Hotel", "Driver"], required: true },
+  // 1. ADDED "Guide" TO THE LIST BELOW
+  bookingType: { 
+    type: String, 
+    enum: ["Package", "Hotel", "Driver", "Guide"], // <--- UPDATED
+    required: true 
+  },
   
-  // The ID of the specific item (PackageID, HotelID, or UserID for Driver)
   itemId: { type: mongoose.Schema.Types.ObjectId, required: true, refPath: 'itemModel' },
-  itemModel: { type: String, required: true, enum: ['Package', 'Hotel', 'User'] },
+  
+  // 2. GUIDES ARE PART OF THE 'User' MODEL (Discriminator)
+  itemModel: { 
+    type: String, 
+    required: true, 
+    enum: ['Package', 'Hotel', 'User'] // 'User' covers both Driver and Guide
+  },
 
-  // Booking Details
   bookingDate: { type: Date, required: true },
-  guests: { type: Number, default: 1 }, // For Packages/Hotels
-  days: { type: Number, default: 1 },   // For Drivers/Hotels
+  guests: { type: Number, default: 1 }, 
+  days: { type: Number, default: 1 },   
   totalPrice: { type: Number, required: true },
   
-  // Payment Info
   paymentMethod: { type: String, enum: ["Credit/Debit Card", "JazzCash", "Easypaisa"], required: true },
-  status: { type: String, default: "Confirmed" }, // Confirmed, Completed, Cancelled
+  status: { type: String, default: "Confirmed" }, 
 
 }, { timestamps: true });
 
