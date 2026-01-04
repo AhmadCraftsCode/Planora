@@ -353,9 +353,9 @@ const DriverCard = ({ name, car, city, rate, image, gender, onBook }) => {
   let displayImage = image;
   if (!displayImage) {
     if (gender === "Female") {
-      displayImage = "https://cdn-icons-png.flaticon.com/512/1995/1995574.png"; // Girl Icon
+      displayImage = "https://imgs.search.brave.com/a2Xu6o9i5W4zzPH31_mRQQRhv2qil8H0_37DSF3EZwA/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly9pbWcu/ZnJlZXBpay5jb20v/cHJlbWl1bS12ZWN0/b3Ivc21pbGluZy13/b21hbi1hdmF0YXJf/OTM3NDkyLTYxMzUu/anBnP3NlbXQ9YWlz/X2h5YnJpZCZ3PTc0/MCZxPTgw"; // Girl Icon
     } else {
-      displayImage = "https://cdn-icons-png.flaticon.com/512/1995/1995539.png"; // Boy Icon
+      displayImage = "https://imgs.search.brave.com/5_ZkWDuB8hlu3wnQ51bAHQBByYAVShSX7NXroIvRTbs/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly9zdGF0/aWMudmVjdGVlenku/Y29tL3N5c3RlbS9y/ZXNvdXJjZXMvdGh1/bWJuYWlscy8wMjQv/MTgzLzUwMi9zbWFs/bC9tYWxlLWF2YXRh/ci1wb3J0cmFpdC1v/Zi1hLXlvdW5nLW1h/bi13aXRoLWEtYmVh/cmQtaWxsdXN0cmF0/aW9uLW9mLW1hbGUt/Y2hhcmFjdGVyLWlu/LW1vZGVybi1jb2xv/ci1zdHlsZS12ZWN0/b3IuanBn"; // Boy Icon
     }
   }
 
@@ -381,9 +381,9 @@ const GuideCard = ({ name, language, city, rate, image, gender, onBook }) => {
   let displayImage = image;
   if (!displayImage) {
     if (gender === "Female") {
-      displayImage = "https://cdn-icons-png.flaticon.com/512/1995/1995574.png"; // Girl Icon
+      displayImage = "https://imgs.search.brave.com/a2Xu6o9i5W4zzPH31_mRQQRhv2qil8H0_37DSF3EZwA/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly9pbWcu/ZnJlZXBpay5jb20v/cHJlbWl1bS12ZWN0/b3Ivc21pbGluZy13/b21hbi1hdmF0YXJf/OTM3NDkyLTYxMzUu/anBnP3NlbXQ9YWlz/X2h5YnJpZCZ3PTc0/MCZxPTgw"; // Girl Icon
     } else {
-      displayImage = "https://cdn-icons-png.flaticon.com/512/1995/1995539.png"; // Boy Icon
+      displayImage = "https://imgs.search.brave.com/5_ZkWDuB8hlu3wnQ51bAHQBByYAVShSX7NXroIvRTbs/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly9zdGF0/aWMudmVjdGVlenku/Y29tL3N5c3RlbS9y/ZXNvdXJjZXMvdGh1/bWJuYWlscy8wMjQv/MTgzLzUwMi9zbWFs/bC9tYWxlLWF2YXRh/ci1wb3J0cmFpdC1v/Zi1hLXlvdW5nLW1h/bi13aXRoLWEtYmVh/cmQtaWxsdXN0cmF0/aW9uLW9mLW1hbGUt/Y2hhcmFjdGVyLWlu/LW1vZGVybi1jb2xv/ci1zdHlsZS12ZWN0/b3IuanBn"; // Boy Icon
     }
   }
 
