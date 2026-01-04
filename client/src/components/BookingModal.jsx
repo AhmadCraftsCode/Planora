@@ -102,10 +102,9 @@ const BookingModal = ({ item, type, onClose }) => {
       }
 
       const payload = {
-        bookingType: type, // This will now be "Guide"
+        bookingType: type, // "Package", "Hotel", "Driver", or "Guide"
         itemId: item._id,
-        // FIX: If it's a Driver OR a Guide, use "User" model. Others use their own.
-        itemModel: (type === "Driver" || type === "Guide") ? "User" : type, 
+        itemModel: type,   // Send the type directly (e.g., "Guide")
         bookingDate: details.date,
         guests: Number(details.guests),
         days: Number(details.duration),
