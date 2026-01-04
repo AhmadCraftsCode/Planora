@@ -6,6 +6,8 @@ const Navbar = () => {
   const [scrolled, setScrolled] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const navigate = useNavigate();
+  
+  // Get User Data from Storage
   const user = JSON.parse(sessionStorage.getItem("user"));
 
   useEffect(() => {
@@ -16,6 +18,7 @@ const Navbar = () => {
 
   const handleLogout = () => {
     sessionStorage.clear();
+    setIsDropdownOpen(false);
     navigate("/"); 
     window.location.reload(); 
   };
@@ -38,12 +41,15 @@ const Navbar = () => {
     }`}>
       <div className="max-w-7xl mx-auto px-6 flex justify-between items-center">
         
+        {/* Logo */}
         <Link to="/" className="flex items-center gap-2 group">
           <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center text-white font-bold text-xl group-hover:bg-blue-700 transition">P</div>
-          <span className={`text-2xl font-bold tracking-tight transition ${scrolled ? "text-slate-900" : "text-white"}`}>Planora.</span>
+          <span className={`text-2xl font-bold tracking-tight transition ${scrolled ? "text-slate-900" : "text-white"}`}>
+            Planora.
+          </span>
         </Link>
 
-        {/* UPDATED LINKS: Added "About" at the start */}
+        {/* --- UPDATED LINKS: GUIDES ADDED HERE --- */}
         <div className="hidden md:flex items-center gap-8">
           {["About", "Packages", "Hotels", "Drivers", "Guides"].map((item) => (
             <a 
@@ -56,21 +62,27 @@ const Navbar = () => {
           ))}
         </div>
 
+        {/* Auth Section */}
         <div className="relative">
           {user ? (
             <div>
               <button 
                 onClick={() => setIsDropdownOpen(!isDropdownOpen)}
                 className={`flex items-center gap-3 px-2 py-1.5 rounded-full transition-all border ${
-                  scrolled ? "border-gray-200 hover:bg-gray-50 text-slate-800" : "border-white/20 hover:bg-white/10 text-white"
+                  scrolled 
+                    ? "border-gray-200 hover:bg-gray-50 text-slate-800" 
+                    : "border-white/20 hover:bg-white/10 text-white"
                 }`}
               >
-                <img src={user.profilePicture || "https://cdn-icons-png.flaticon.com/512/3135/3135715.png"} className="w-8 h-8 rounded-full object-cover border border-white/50" />
+                <img 
+                  src={user.profilePicture || "https://cdn-icons-png.flaticon.com/512/3135/3135715.png"} 
+                  alt="Profile" 
+                  className="w-8 h-8 rounded-full object-cover border border-white/50"
+                />
                 <span className="text-sm font-semibold hidden md:block">{user.fullName.split(" ")[0]}</span>
                 <FaChevronDown size={10} className="opacity-70" />
               </button>
 
-              {/* HOMEPAGE DROPDOWN: Shows Dashboard & Logout */}
               {isDropdownOpen && (
                 <>
                   <div className="fixed inset-0 z-40 cursor-default" onClick={() => setIsDropdownOpen(false)}></div>
@@ -90,8 +102,11 @@ const Navbar = () => {
 
                     <div className="border-t border-gray-50 my-1"></div>
 
-                    <button onClick={handleLogout} className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 transition text-left">
-                      <FaSignOutAlt /> Logout
+                    <button 
+                      onClick={handleLogout}
+                      className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 transition text-left"
+                    >
+                      <FaSignOutAlt size={14} /> Logout
                     </button>
                   </div>
                 </>
@@ -99,8 +114,12 @@ const Navbar = () => {
             </div>
           ) : (
             <div className="flex gap-3">
-              <Link to="/login" className={`px-5 py-2.5 rounded-full text-sm font-bold transition ${scrolled ? "text-slate-700 hover:bg-gray-100" : "text-white hover:bg-white/10"}`}>Login</Link>
-              <Link to="/register" className="bg-white text-slate-900 px-5 py-2.5 rounded-full text-sm font-bold shadow hover:bg-gray-100 transition">Register</Link>
+              <Link to="/login" className={`px-5 py-2.5 rounded-full text-sm font-bold transition ${scrolled ? "text-slate-700 hover:bg-gray-100" : "text-white hover:bg-white/10"}`}>
+                Login
+              </Link>
+              <Link to="/register" className="bg-white text-slate-900 px-5 py-2.5 rounded-full text-sm font-bold shadow hover:bg-gray-100 transition">
+                Register
+              </Link>
             </div>
           )}
         </div>
