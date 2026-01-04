@@ -84,6 +84,7 @@ const DashboardOverview = ({ colorType }) => {
                <BreakdownRow label="Custom Packages" amount={stats.breakdown.customPackages} color="text-rose-600" />
                <BreakdownRow label="Solo Hotels" amount={stats.breakdown.hotels} color="text-purple-600" />
                <BreakdownRow label="Solo Drivers" amount={stats.breakdown.drivers} color="text-orange-600" />
+               <BreakdownRow label="Solo Guides" amount={stats.breakdown.guides} color="text-teal-600" />
             </div>
             <div className="flex-1 w-full flex justify-center">
                <BreakdownChart breakdown={stats.breakdown} />

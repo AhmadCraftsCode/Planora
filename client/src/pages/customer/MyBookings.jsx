@@ -62,10 +62,20 @@ const MyBookings = () => {
           <p className="text-sm text-gray-500">Track your upcoming and past trips.</p>
         </div>
         <div className="bg-white p-1 rounded-xl border border-gray-200 shadow-sm flex">
-          {["All", "Package", "Hotel", "Driver"].map(tab => (
-            <button key={tab} onClick={() => setFilter(tab)} className={`px-6 py-2 rounded-lg text-sm font-bold transition-all ${filter === tab ? "bg-rose-600 text-white shadow-md" : "text-gray-500 hover:bg-gray-50 hover:text-rose-600"}`}>{tab}</button>
-          ))}
-        </div>
+        {["All", "Package", "Hotel", "Driver", "Guide"].map(tab => (
+          <button
+            key={tab}
+            onClick={() => setFilter(tab)}
+            className={`px-6 py-2 rounded-lg text-sm font-bold transition-all ${
+              filter === tab 
+                ? "bg-rose-600 text-white shadow-md" 
+                : "text-gray-500 hover:bg-gray-50 hover:text-rose-600"
+            }`}
+          >
+            {tab}
+          </button>
+        ))}
+      </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
